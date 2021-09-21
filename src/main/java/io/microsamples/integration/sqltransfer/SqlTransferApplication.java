@@ -58,18 +58,8 @@ public class SqlTransferApplication {
 	@Bean
 	public StoredProcPollingChannelAdapter storedProcPollingChannelAdapter(StoredProcExecutor storedProcExecutor){
 		StoredProcPollingChannelAdapter storedProcPollingChannelAdapter = new StoredProcPollingChannelAdapter(storedProcExecutor);
-		storedProcPollingChannelAdapter.setExpectSingleResult(true);
+		storedProcPollingChannelAdapter.setExpectSingleResult(false);
 		return storedProcPollingChannelAdapter;
-	}
-
-	@Bean
-	public StoredProcOutboundGateway storedProcMessageSource(StoredProcExecutor storedProcExecutor) {
-
-		StoredProcOutboundGateway gateway = new StoredProcOutboundGateway(storedProcExecutor);
-		gateway.setRequiresReply(false);
-		gateway.setExpectSingleResult(true);
-
-		return gateway;
 	}
 
 	@Bean
@@ -78,7 +68,7 @@ public class SqlTransferApplication {
 		storedProcExecutor.setStoredProcedureName("chachkiesproc");
 
 		List<ProcedureParameter> procedureParameters = new ArrayList<ProcedureParameter>();
-		procedureParameters.add(new ProcedureParameter("latitude", 0.123470, null));
+		procedureParameters.add(new ProcedureParameter("latitude", 0.0, null));
 		storedProcExecutor.setProcedureParameters(procedureParameters);
 
 		List<SqlParameter> sqlParameters = new ArrayList<>();
