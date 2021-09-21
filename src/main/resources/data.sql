@@ -1,0 +1,5 @@
+insert into test_schema.chachkies (id, latitude, longitude) values (NEWID(), 0.12345, 0.54321)
+insert into test_schema.chachkies (id, latitude, longitude) values (NEWID(), 0.12346, 0.54322)
+insert into test_schema.chachkies (id, latitude, longitude) values (NEWID(), 0.12347, 0.54323)
+insert into test_schema.chachkies (id, latitude, longitude) values (NEWID(), 0.12348, 0.54324)
+insert into test_schema.chachkies (id, latitude, longitude) values (NEWID(), 0.12348, 0.54325)
