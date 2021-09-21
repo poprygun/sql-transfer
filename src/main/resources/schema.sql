@@ -1,8 +1,17 @@
 use test_db
 
-DROP TABLE IF EXISTS test_schema.chachkies;
+DROP TABLE IF EXISTS test_schema.chachkies_source;
 
-create table test_schema.chachkies
+create table test_schema.chachkies_source
+(
+    id varchar(36) not null,
+    latitude decimal (9,6),
+    longitude decimal(9,6)
+);
+
+DROP TABLE IF EXISTS test_schema.chachkies_destination;
+
+create table test_schema.chachkies_destination
 (
     id varchar(36) not null,
     latitude decimal (9,6),
@@ -17,6 +26,6 @@ create procedure chachkiesproc
 begin
     set nocount on
     select id, latitude, longitude
-    from test_schema.chachkies
+    from test_schema.chachkies_source
     where latitude > @latitude
 end;
