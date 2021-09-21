@@ -50,7 +50,7 @@ public class SqlTransferApplication {
 	@Bean
 	public IntegrationFlow triggeredFlow(StoredProcPollingChannelAdapter storedProcPollingChannelAdapter) {
 		return IntegrationFlows.from(storedProcPollingChannelAdapter)
-//				.handle(storedProcMessageSource)
+				.split()
 				.handle(message -> log.info("👀 processing message {}", message.getPayload()))
 				.get();
 	}
@@ -58,7 +58,7 @@ public class SqlTransferApplication {
 	@Bean
 	public StoredProcPollingChannelAdapter storedProcPollingChannelAdapter(StoredProcExecutor storedProcExecutor){
 		StoredProcPollingChannelAdapter storedProcPollingChannelAdapter = new StoredProcPollingChannelAdapter(storedProcExecutor);
-		storedProcPollingChannelAdapter.setExpectSingleResult(false);
+		storedProcPollingChannelAdapter.setExpectSingleResult(true);
 		return storedProcPollingChannelAdapter;
 	}
 
