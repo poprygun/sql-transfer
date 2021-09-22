@@ -101,7 +101,7 @@ class ChachkieMapper implements RowMapper<Chachkie> {
 interface ChachkieRepository extends CrudRepository<Chachkie, String>{}
 
 @Entity
-@Table(name = "chachkies_destination", schema = "test_schema")
+@Table(name = "chachkies_destination")
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
