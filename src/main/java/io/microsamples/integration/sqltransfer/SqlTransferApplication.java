@@ -56,7 +56,7 @@ public class SqlTransferApplication {
                 .split()
                 .handle(
                         message -> {
-//                            chachkieRepository.save((Chachkie) message.getPayload());
+                            chachkieRepository.save((Chachkie) message.getPayload());
                             log.info("👀 processing message {}", message.getPayload());
                         }
                 )
@@ -101,32 +101,16 @@ class ChachkieMapper implements RowMapper<Chachkie> {
 interface ChachkieRepository extends CrudRepository<Chachkie, String>{}
 
 @Entity
-@Table(name = "chachkies_destination")
+@Table(name = "chachkies_destination", schema = "test_schema")
+@Getter
+@AllArgsConstructor
+@NoArgsConstructor
 class Chachkie {
-protected Chachkie()   {}
-
-    public Chachkie(String id, Double latitude, Double longitude) {
-        this.id = id;
-        this.latitude = latitude;
-        this.longitude = longitude;
-    }
 
     @Id
     private String id;
     private Double latitude;
     private Double longitude;
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public Double getLatitude() {
-        return latitude;
-    }
 
     @Override
     public String toString() {
