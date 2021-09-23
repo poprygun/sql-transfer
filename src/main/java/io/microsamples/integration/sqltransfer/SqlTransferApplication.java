@@ -3,6 +3,7 @@ package io.microsamples.integration.sqltransfer;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
@@ -36,7 +37,8 @@ import java.util.List;
 public class SqlTransferApplication {
 
     @Autowired
-    private DataSource dataSource;
+    @Qualifier("sourceDatasource")
+    private DataSource sourceDatasource;
 
     public static void main(String[] args) {
         SpringApplication.run(SqlTransferApplication.class, args);
@@ -72,7 +74,7 @@ public class SqlTransferApplication {
 
     @Bean
     public StoredProcExecutor storedProcExecutor() {
-        StoredProcExecutor storedProcExecutor = new StoredProcExecutor(this.dataSource);
+        StoredProcExecutor storedProcExecutor = new StoredProcExecutor(this.sourceDatasource);
         storedProcExecutor.setStoredProcedureName("chachkiesproc");
 
         List<ProcedureParameter> procedureParameters = new ArrayList<ProcedureParameter>();
