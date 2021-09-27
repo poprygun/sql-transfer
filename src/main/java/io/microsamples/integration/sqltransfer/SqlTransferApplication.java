@@ -1,23 +1,25 @@
 package io.microsamples.integration.sqltransfer;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.integration.annotation.Gateway;
+import org.springframework.integration.annotation.MessagingGateway;
 import org.springframework.integration.dsl.IntegrationFlow;
 import org.springframework.integration.dsl.IntegrationFlows;
 import org.springframework.integration.jdbc.StoredProcExecutor;
-import org.springframework.integration.jdbc.StoredProcPollingChannelAdapter;
+import org.springframework.integration.jdbc.StoredProcOutboundGateway;
 import org.springframework.integration.jdbc.storedproc.ProcedureParameter;
-import org.springframework.integration.scheduling.PollerMetadata;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.SqlParameter;
-import org.springframework.scheduling.TriggerContext;
-import org.springframework.scheduling.support.PeriodicTrigger;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.Entity;
@@ -29,7 +31,6 @@ import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
 @SpringBootApplication
@@ -41,20 +42,26 @@ public class SqlTransferApplication {
     private DataSource sourceDatasource;
 
     public static void main(String[] args) {
-        SpringApplication.run(SqlTransferApplication.class, args);
+        final ConfigurableApplicationContext ctx = SpringApplication.run(SqlTransferApplication.class, args);
+
+        final FlowInvoker invoker = ctx.getBean(FlowInvoker.class);
+        invoker.trigger("start-flow");
+
+        ctx.close();
+
     }
 
-    @Bean(name = PollerMetadata.DEFAULT_POLLER)
-    public PollerMetadata defaultPoller() {
-
-        PollerMetadata pollerMetadata = new PollerMetadata();
-        pollerMetadata.setTrigger(new RunOnceTrigger(1000));
-        return pollerMetadata;
+    @MessagingGateway
+    public interface FlowInvoker {
+        @Gateway(requestChannel = "triggerChannel")
+        void trigger(String flowStartSignal);
     }
 
     @Bean
-    public IntegrationFlow triggeredFlow(StoredProcPollingChannelAdapter storedProcPollingChannelAdapter, ChachkieRepository chachkieRepository) {
-        return IntegrationFlows.from(storedProcPollingChannelAdapter)
+    public IntegrationFlow triggeredFlow(ChachkieRepository chachkieRepository, StoredProcOutboundGateway procOutboundGateway) {
+        return IntegrationFlows.from("triggerChannel")
+                .handle(procOutboundGateway)
+                .log()
                 .split()
                 .handle(
                         message -> {
@@ -66,10 +73,10 @@ public class SqlTransferApplication {
     }
 
     @Bean
-    public StoredProcPollingChannelAdapter storedProcPollingChannelAdapter(StoredProcExecutor storedProcExecutor) {
-        StoredProcPollingChannelAdapter storedProcPollingChannelAdapter = new StoredProcPollingChannelAdapter(storedProcExecutor);
-        storedProcPollingChannelAdapter.setExpectSingleResult(true);
-        return storedProcPollingChannelAdapter;
+    public StoredProcOutboundGateway procOutboundGateway (StoredProcExecutor storedProcExecutor){
+        StoredProcOutboundGateway procOutboundGateway = new StoredProcOutboundGateway(storedProcExecutor);
+        procOutboundGateway.setExpectSingleResult(true);
+        return procOutboundGateway;
     }
 
     @Bean
@@ -121,20 +128,5 @@ class Chachkie {
                 ", latitude=" + latitude +
                 ", longitude=" + longitude +
                 '}';
-    }
-}
-
-class RunOnceTrigger extends PeriodicTrigger {
-    public RunOnceTrigger(long period) {
-        super(period);
-        setInitialDelay(period);
-    }
-
-    @Override
-    public Date nextExecutionTime(TriggerContext triggerContext) {
-        if (triggerContext.lastCompletionTime() == null) {   // hasn't executed yet
-            return super.nextExecutionTime(triggerContext);
-        }
-        return null;
     }
 }
