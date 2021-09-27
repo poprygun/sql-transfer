@@ -1,6 +1,4 @@
-drop table if exists test_schema.chachkies_source;
-
-drop schema if exists test_schema;
+drop schema if exists test_schema cascade;
 
 create schema test_schema;
 
