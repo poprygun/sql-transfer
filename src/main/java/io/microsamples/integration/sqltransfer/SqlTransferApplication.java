@@ -8,11 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.repository.CrudRepository;
-import org.springframework.integration.annotation.Gateway;
-import org.springframework.integration.annotation.MessagingGateway;
 import org.springframework.integration.dsl.IntegrationFlow;
 import org.springframework.integration.dsl.IntegrationFlows;
 import org.springframework.integration.jdbc.StoredProcExecutor;
@@ -42,19 +39,7 @@ public class SqlTransferApplication {
     private DataSource sourceDatasource;
 
     public static void main(String[] args) {
-        final ConfigurableApplicationContext ctx = SpringApplication.run(SqlTransferApplication.class, args);
-
-        final FlowInvoker invoker = ctx.getBean(FlowInvoker.class);
-        invoker.trigger("start-flow");
-
-        ctx.close();
-
-    }
-
-    @MessagingGateway
-    public interface FlowInvoker {
-        @Gateway(requestChannel = "triggerChannel")
-        void trigger(String flowStartSignal);
+        SpringApplication.run(SqlTransferApplication.class, args);
     }
 
     @Bean
@@ -84,7 +69,7 @@ public class SqlTransferApplication {
         StoredProcExecutor storedProcExecutor = new StoredProcExecutor(this.sourceDatasource);
         storedProcExecutor.setStoredProcedureName("chachkiesproc");
 
-        List<ProcedureParameter> procedureParameters = new ArrayList<ProcedureParameter>();
+        List<ProcedureParameter> procedureParameters = new ArrayList<>();
         procedureParameters.add(new ProcedureParameter("latitude", 0.0, null));
         storedProcExecutor.setProcedureParameters(procedureParameters);
 
