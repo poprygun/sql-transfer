@@ -9,6 +9,7 @@ import org.springframework.boot.sql.init.DatabaseInitializationSettings;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.Profile;
 
 import javax.sql.DataSource;
 import java.util.ArrayList;
@@ -27,12 +28,14 @@ public class DatabaseConfiguration {
 
     @Bean(name = "sourceDatasource")
     @ConfigurationProperties(prefix = "spring.datasource")
+    @Profile("!test")
     public DataSource sourceDatasource() {
         return DataSourceBuilder.create().build();
     }
 
     @Bean
     @Primary
+    @Profile("!test")
     public DataSourceScriptDatabaseInitializer sourceScriptInitializer(DataSourceProperties properties){
         DatabaseInitializationSettings settings = new DatabaseInitializationSettings();
         final List<String> scriptLocations = scriptLocations(properties.getData(), "schema", "source");
