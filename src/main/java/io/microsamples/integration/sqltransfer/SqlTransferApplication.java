@@ -45,7 +45,7 @@ public class SqlTransferApplication {
     @Bean
     public IntegrationFlow triggeredFlow(ChachkieRepository chachkieRepository, StoredProcOutboundGateway procOutboundGateway) {
         return IntegrationFlows.from("triggerChannel")
-                .handle(procOutboundGateway)
+                .handle(procOutboundGateway, e -> e.id("procEndpoint"))
                 .log()
                 .split()
                 .handle(
